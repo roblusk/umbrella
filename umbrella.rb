@@ -3,7 +3,8 @@ pp "Where are you?"
 
 
 # Get and store the user’s location.
-address = gets.chomp()
+# address = gets.chomp()
+address = "New York"
 
 
 # Get the user’s latitude and longitude from the Google Maps API.
@@ -30,5 +31,30 @@ pirate_weather_raw_response = HTTP.get(pirate_weather_url)
 pirate_weather_parsed_response = JSON.parse(pirate_weather_raw_response)
 currently = pirate_weather_parsed_response.fetch("currently")
 temperature = currently.fetch("temperature") #Float
-pp "The temperature at #{address} is #{temperature}F"
+hourly = pirate_weather_parsed_response.fetch("hourly")
+summary = hourly.fetch("summary") #String
+data = hourly.fetch("data")
 
+
+# Display the current temperature and summary of the weather for the next hour.
+pp "#{address}: #{summary}, #{temperature}F"
+
+
+# For each of the next twelve hours, check if the precipitation probability is greater than 10%.
+data = hourly.fetch("data")
+
+i = 0
+may_rain = false
+while (i < 12 && !may_rain)
+  precipProbability = data[i].fetch("precipProbability")
+  if precipProbability > 0.1
+    pp "It may rain #{i} hours from now. (#{precipProbability * 100}% probability)"
+    may_rain = true
+  end
+  i = i + 1
+end
+if may_rain
+  pp "You might want to carry an umbrella!"
+else
+  pp "You probably won't need an umbrella today."
+end
